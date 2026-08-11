@@ -21,7 +21,8 @@
     "start": "npm run build && electron .",
     "check": "npm run lint && npm run build",
     "lint": "eslint .",
-    "dist:mac": "bash scripts/package-mac-local.sh"
+    "dist:mac": "bash scripts/package-mac-local.sh",
+    "dist:win": "electron-builder --win nsis --x64 --publish never"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",
@@ -75,6 +76,24 @@
         "NSMicrophoneUsageDescription": "用于在录制演示视频时同步录入讲解声音。",
         "NSScreenCaptureUsageDescription": "用于录制阿宝演示画面窗口。"
       }
+    },
+    "win": {
+      "icon": "build/icon.png",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "ABAO Presenter"
     },
     "dmg": {
       "title": "ABAO Presenter ${version}"
