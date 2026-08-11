@@ -1,0 +1,23 @@
+node_modules/
+.npm-cache/
+dist/
+out/
+release/
+recordings/
+demo/
+coverage/
+*.log
+.DS_Store
+.env
+.env.*
+tools/*.exe
+tools/ffmpeg*
+*.pfx
+*.p12
+*.pem
+
+# Legacy internal launchers and working notes are not part of the public project.
+启动阿宝演示录制台.cmd
+使用说明.md
+公开发布检查清单.md
+项目进度.md

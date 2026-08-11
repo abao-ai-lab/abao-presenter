@@ -1,0 +1,88 @@
+{
+  "name": "abao-presenter",
+  "version": "0.2.0",
+  "private": false,
+  "description": "Local-first presentation recorder for whiteboards, images, interactive HTML, camera overlays and teleprompter workflows.",
+  "author": "ABAO AI Lab",
+  "license": "MIT",
+  "type": "module",
+  "homepage": "https://github.com/abao-ai-lab/abao-presenter#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/abao-ai-lab/abao-presenter.git"
+  },
+  "bugs": {
+    "url": "https://github.com/abao-ai-lab/abao-presenter/issues"
+  },
+  "main": "electron/main.cjs",
+  "scripts": {
+    "dev": "npm run build && electron .",
+    "build": "vite build",
+    "start": "npm run build && electron .",
+    "check": "npm run lint && npm run build",
+    "lint": "eslint .",
+    "dist:mac": "bash scripts/package-mac-local.sh"
+  },
+  "dependencies": {
+    "lucide-react": "^0.468.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.4",
+    "@vitejs/plugin-react": "^4.3.4",
+    "electron": "^43.3.0",
+    "electron-builder": "^26.15.3",
+    "eslint": "^9.39.4",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "globals": "^17.4.0",
+    "vite": "^6.0.7"
+  },
+  "build": {
+    "appId": "com.abao.presenterrecorder",
+    "productName": "ABAO Presenter",
+    "artifactName": "ABAO-Presenter-${version}-${arch}.${ext}",
+    "asar": true,
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "mac": {
+      "category": "public.app-category.video",
+      "icon": "build/icon.icns",
+      "identity": "-",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "arm64"
+          ]
+        }
+      ],
+      "extendInfo": {
+        "NSCameraUsageDescription": "用于将摄像头人像加入演示录制画面。",
+        "NSMicrophoneUsageDescription": "用于在录制演示视频时同步录入讲解声音。",
+        "NSScreenCaptureUsageDescription": "用于录制阿宝演示画面窗口。"
+      }
+    },
+    "dmg": {
+      "title": "ABAO Presenter ${version}"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "abao-ai-lab",
+      "repo": "abao-presenter"
+    }
+  }
+}
