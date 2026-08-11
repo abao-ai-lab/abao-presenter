@@ -32,14 +32,35 @@
 
 不确定 Mac 芯片类型时，点击屏幕左上角苹果菜单 →“关于本机”查看“芯片”或“处理器”。
 
-### macOS 安装
+### macOS 安装（首次打开必看）
+
+> **为什么会提示风险？** 当前安装包没有使用 Apple Developer 证书进行官方签名和公证，因此 macOS Gatekeeper 可能提示“无法验证开发者”“Apple 无法检查其是否包含恶意软件”或阻止打开。这是未公证应用的系统提示，并不代表软件被检测出病毒。请只从本仓库的 [Releases](https://github.com/abao-ai-lab/abao-presenter/releases/latest) 下载。
 
 1. 下载与你芯片匹配的 `.dmg`，双击打开。
 2. 将 `ABAO Presenter` 拖入“应用程序”文件夹。
-3. 首次启动时，在 Finder 的“应用程序”中右键 `ABAO Presenter`，选择“打开”。
-4. 按系统提示授予摄像头、麦克风和屏幕录制权限；修改屏幕录制权限后可能需要重启软件。
+3. 打开 Finder →“应用程序”，按住 `Control` 点击（或右键点击）`ABAO Presenter`，选择“打开”。
+4. 在弹出的风险提示中再次点击“打开”。通过这种方式打开一次后，以后可以正常双击启动。
 
-目前公开安装包未进行 Apple 官方公证，因此直接双击时 macOS 可能提示无法验证开发者。请只从本仓库 Releases 下载。
+如果弹窗里没有“打开”按钮：
+
+1. 先尝试启动一次软件并关闭风险提示。
+2. 打开苹果菜单 →“系统设置”→“隐私与安全性”。
+3. 向下找到“已阻止使用 ABAO Presenter”，点击“仍要打开”。
+4. 使用登录密码或 Touch ID 确认，然后在新弹窗中点击“打开”。
+
+首次录制时，请根据系统提示允许以下权限：
+
+- **摄像头**：显示人像画面。
+- **麦克风**：录制讲解声音。
+- **屏幕与系统音频录制**：录制演示窗口。授予这项权限后，请完全退出并重新打开软件。
+
+如果确认安装包来自本仓库，但系统仍提示“应用已损坏”或无法打开，可先下载 [SHA256SUMS.txt](https://github.com/abao-ai-lab/abao-presenter/releases/latest/download/SHA256SUMS.txt) 校验文件，然后在终端执行：
+
+```bash
+xattr -dr com.apple.quarantine "/Applications/ABAO Presenter.app"
+```
+
+执行后回到“应用程序”文件夹，再次右键软件并选择“打开”。**不要对来源不明的软件执行这条命令。**
 
 ### Windows 安装
 
