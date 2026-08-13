@@ -1,6 +1,6 @@
 {
   "name": "abao-presenter",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": false,
   "description": "Local-first presentation recorder for whiteboards, images, interactive HTML, camera overlays and teleprompter workflows.",
   "author": "ABAO AI Lab",

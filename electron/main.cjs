@@ -167,6 +167,92 @@ const cursorScript = String.raw`
 })();
 `;
 
+const layoutAssistScript = String.raw`
+(() => {
+  if (window.__abaoLayoutAssistInstalled) return;
+  window.__abaoLayoutAssistInstalled = true;
+
+  const selector = 'h1,h2,h3,[class*="title" i],[class*="headline" i]';
+  const isCjk = (value) => /[\u3400-\u9fff\uf900-\ufaff]/.test(value);
+
+  function lineGroups(textNode) {
+    const groups = [];
+    const text = textNode.nodeValue || '';
+    for (let index = 0; index < text.length; index += 1) {
+      const range = document.createRange();
+      range.setStart(textNode, index);
+      range.setEnd(textNode, index + 1);
+      const rect = range.getBoundingClientRect();
+      if (!rect.width && !rect.height) continue;
+      let group = groups.find((item) => Math.abs(item.top - rect.top) < 2);
+      if (!group) {
+        group = { top: rect.top, text: '' };
+        groups.push(group);
+      }
+      group.text += text[index];
+    }
+    return groups.sort((a, b) => a.top - b.top);
+  }
+
+  function fitOrphanedTitle(element) {
+    const textNodes = [...element.childNodes].filter(
+      (node) => node.nodeType === Node.TEXT_NODE && node.nodeValue.trim()
+    );
+    if (textNodes.length !== 1 || [...element.children].some((child) => getComputedStyle(child).display !== 'inline')) return;
+
+    const text = (element.textContent || '').trim();
+    if (!text || text.length > 42 || text.includes('\n')) return;
+    const style = getComputedStyle(element);
+    if (style.display === 'none' || style.visibility === 'hidden' || parseFloat(style.fontSize) < 18) return;
+
+    const groups = lineGroups(textNodes[0]);
+    if (groups.length < 2) return;
+    const lastLine = groups.at(-1).text.replace(/\s/g, '');
+    if (lastLine.length > 2 || !isCjk(lastLine)) return;
+
+    const originalFontSize = parseFloat(style.fontSize);
+    const originalWhiteSpace = element.style.whiteSpace;
+    element.style.whiteSpace = 'nowrap';
+    const availableWidth = element.clientWidth;
+    const neededWidth = element.scrollWidth;
+    if (!availableWidth || !neededWidth) {
+      element.style.whiteSpace = originalWhiteSpace;
+      return;
+    }
+
+    const fittedFontSize = Math.max(
+      originalFontSize * 0.82,
+      originalFontSize * availableWidth / neededWidth * 0.985
+    );
+    element.style.fontSize = fittedFontSize + 'px';
+    if (element.scrollWidth > element.clientWidth + 1) {
+      element.style.fontSize = originalFontSize + 'px';
+      element.style.whiteSpace = originalWhiteSpace;
+      element.style.wordBreak = 'keep-all';
+    }
+  }
+
+  function repairLayout() {
+    document.querySelectorAll(selector).forEach(fitOrphanedTitle);
+  }
+
+  const start = () => {
+    repairLayout();
+    setTimeout(repairLayout, 120);
+    setTimeout(repairLayout, 500);
+    new MutationObserver(() => requestAnimationFrame(repairLayout)).observe(document.body, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ['class']
+    });
+  };
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, { once: true });
+  else start();
+})();
+`;
+
 function safeTarget(root, requestPath, entryName) {
   let decoded = decodeURIComponent(requestPath || "/");
   if (decoded === "/") decoded = `/${entryName}`;
@@ -207,6 +293,11 @@ async function startContentServer(entryFile) {
       res.end(cursorScript);
       return;
     }
+    if (url.pathname === "/__abao_layout_assist.js") {
+      res.writeHead(200, { "Content-Type": "application/javascript; charset=utf-8", "Cache-Control": "no-store" });
+      res.end(layoutAssistScript);
+      return;
+    }
 
     let target = safeTarget(root, url.pathname, entryName);
     if (!target) {
@@ -225,7 +316,7 @@ async function startContentServer(entryFile) {
     const mime = mimeFor(target);
     if (mime.startsWith("text/html")) {
       let html = fs.readFileSync(target, "utf8");
-      const injection = '<script src="/__abao_cursor.js"></script>';
+      const injection = '<script src="/__abao_cursor.js"></script><script src="/__abao_layout_assist.js"></script>';
       html = /<\/body>/i.test(html) ? html.replace(/<\/body>/i, `${injection}</body>`) : `${html}${injection}`;
       res.writeHead(200, { "Content-Type": mime, "Cache-Control": "no-store" });
       res.end(html);
